@@ -1,52 +1,39 @@
 class Solution {
     public int minDays(int[] bloomDay, int m, int k) {
-        // If there aren't enough flowers overall to make m bouquets,
-        // it's impossible.
-        if ((long) m * k > bloomDay.length) {
-            return -1;
+        
+        int low=1;
+        int Max=bloomDay[0];
+        int n=bloomDay.length;
+        if((long)m*k > n) return -1;
+        
+        for(int i=0; i<bloomDay.length ;i++){
+            Max=Math.max(Max,bloomDay[i]);
         }
         
-        // Find the range for binary search.
-        int low = 1; // earliest possible day (could also be set to min(bloomDay))
-        int high = 0; // latest bloom day among all flowers
-        for (int day : bloomDay) {
-            high = Math.max(high, day);
-        }
+        int high=Max;
+        int count=0;
+        int z=0;
         
-        int ans = -1;
-        // Binary search on days.
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            if (canMake(bloomDay, m, k, mid)) {
-                ans = mid;
-                high = mid - 1;  // try to find a smaller day
-            } else {
-                low = mid + 1;   // not enough bouquets, wait longer
-            }
-        }
-        return ans;
-    }
-    
-    // Helper method to check if it is possible to make m bouquets by 'day'.
-    private boolean canMake(int[] bloomDay, int m, int k, int day) {
-        int bouquets = 0;
-        int consecutive = 0;
-        for (int bloom : bloomDay) {
-            // If the flower blooms by 'day', count it; otherwise, reset.
-            if (bloom <= day) {
-                consecutive++;
-                if (consecutive == k) {
-                    bouquets++;
-                    consecutive = 0; // reset for next bouquet
+        while(low<high){
+            int mid=low+(high-low)/2;
+            z=0;  // reset every time
+            
+            count=0;
+            for(int i=0 ; i<bloomDay.length;i++){
+                if(mid >= bloomDay[i]){
+                    count++;
+                    if(k==count){
+                        z++;
+                        count=0;
+                    }
+                } else {
+                    count=0;
                 }
-            } else {
-                consecutive = 0;
             }
-            // Early exit if we've already made enough bouquets.
-            if (bouquets >= m) {
-                return true;
-            }
+            
+            if(z>=m) high=mid;
+            else low=mid+1;
         }
-        return bouquets >= m;
+        return low; // final answer is low
     }
 }
